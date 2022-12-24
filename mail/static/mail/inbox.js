@@ -36,6 +36,7 @@ function archive(email_id){
         archived: true
     })
   })
+  load_mailbox("inbox")
 
 }
 function unarchive(email_id){
@@ -45,7 +46,20 @@ function unarchive(email_id){
         archived: false
     })
   })
+  load_mailbox("inbox")
 
+}
+
+function reply(email_id){
+  fetch(`/emails/${email_id}`)
+.then(response => response.json())
+.then(email => {
+  compose_email()
+  document.querySelector("#compose-recipients").value = `${email.sender}`;
+  document.querySelector("#compose-subject").value = `Re: ${email.subject}`;
+  document.querySelector("#compose-body").value = `On ${email.timestamp} ${email.sender} wrote: ${email.body}`;
+});
+  
 }
 
 function view_mail(email_id) {
@@ -70,6 +84,7 @@ function view_mail(email_id) {
         <p class="card-text">Time: ${email.timestamp}</p>
         <hr class="my-4">
         <p class="card-text">${email.body}</p>
+          <button type="button" id="reply" class="btn btn-primary" onclick="reply('${email_id}')">Reply</button>
           <button type="button" id="unarchive" class="btn btn-primary" onclick="unarchive('${email_id}')">Unarchive</button>
           <button type="button" id="archive" class="btn btn-primary" onclick="archive('${email_id}')">Archive</button>
       </div>
