@@ -37,6 +37,29 @@ function load_mailbox(mailbox) {
   document.querySelector("#emails-view").innerHTML = `<h3>${
     mailbox.charAt(0).toUpperCase() + mailbox.slice(1)
   }</h3>`;
+
+  fetch(`/emails/${mailbox}`)
+  .then((response) => response.json())
+  .then((emails) => {
+
+    console.log(emails);
+    for (const email of emails) {
+      const newEmail = document.createElement('div');
+      newEmail.className="list-group-item border-dark rounded"
+      if (email.read) {
+        newEmail.style.backgroundColor = 'lightgrey';
+      } else {
+        newEmail.style.backgroundColor = 'white';
+      }
+      newEmail.innerHTML = `<h6>Sender: ${email.sender}</h6> 
+        <h5>Subject: ${email.subject} </h5>
+        <p>Time: ${email.timestamp} </p>`;
+        newEmail.addEventListener('click', function() {
+          console.log('This element has been clicked!')
+      });
+      document.querySelector('#emails-view').append(newEmail);
+    }
+  });
 }
 
 function send_mail(event) {
