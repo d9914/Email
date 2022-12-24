@@ -13,8 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.querySelector("#compose-form").addEventListener("submit", send_mail);
 
-
-
   // By default, load the inbox
   load_mailbox("inbox");
 });
@@ -31,7 +29,22 @@ function compose_email() {
   document.querySelector("#compose-body").value = "";
 }
 
-function reply_email(){
+function archive(email_id){
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: true
+    })
+  })
+
+}
+function unarchive(email_id){
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: false
+    })
+  })
 
 }
 
@@ -50,17 +63,25 @@ function view_mail(email_id) {
     
       const detailEmail = document.createElement("div");
       detailEmail.innerHTML = `
-  <div class="card mb-3">
-    <div class="card-body">
-      <h6 class="card-title font-weight-bold">Sender: ${email.sender}</h6>
-      <h5 class="card-subtitle mb-2">Subject: ${email.subject}</h5>
-      <p class="card-text">Time: ${email.timestamp}</p>
-      <hr class="my-4">
-      <p class="card-text">${email.body}</p>
-      <button id="reply" type="button" class="btn btn-primary">Reply</button>
+      <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title font-weight-bold">Sender: ${email.sender}</h6>
+        <h5 class="card-subtitle mb-2">Subject: ${email.subject}</h5>
+        <p class="card-text">Time: ${email.timestamp}</p>
+        <hr class="my-4">
+        <p class="card-text">${email.body}</p>
+          <button type="button" id="unarchive" class="btn btn-primary" onclick="unarchive('${email_id}')">Unarchive</button>
+          <button type="button" id="archive" class="btn btn-primary" onclick="archive('${email_id}')">Archive</button>
+      </div>
     </div>
-  </div>
 `;
+      if (email.archived) {
+        detailEmail.querySelector("#unarchive").style.display = "inline-block";
+        detailEmail.querySelector("#archive").style.display = "none";
+      } else {
+        detailEmail.querySelector("#unarchive").style.display = "none";
+        detailEmail.querySelector("#archive").style.display = "inline-block";
+      }
       detailView.append(detailEmail);
     });
     fetch(`/emails/${email_id}`, {
@@ -120,7 +141,7 @@ function send_mail(event) {
   })
     .then((response) => response.json())
     .then((result) => {
-      console.log(result);
+
       load_mailbox("sent");
     });
 }
